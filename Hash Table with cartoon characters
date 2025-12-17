@@ -1,0 +1,184 @@
+from hashitem import HashItem
+
+
+class HashItem:
+    ''' Object to hold key - value pairs for the
+        associative array
+    '''
+
+    def __init__(self, key, value):
+        self.key = key
+        self.value = value
+
+
+class LinkedList:
+    def __init__(self):
+        """Creates an empty basic singly linked list"""
+        self.head = None
+
+
+class HashTable:
+    ''' Object to manage associative array of key - value pairs
+        A very simple hash and compression algorithm is used to determine element location
+        Collisions are handled using linear probing
+            _AVAILABLE object used to mark array locations with previous element deleted
+    '''
+    _AVAILABLE = object()  # sentinel placeholder for location with previous deletion
+
+    def __init__(self, size=10):
+        ''' Initialize object for use
+        '''
+        self.slots = [None] * size  # fill associative array with null values
+        self.count = 0  # manage number of elements in associative array
+        self.size = size  # physical size of associative array
+        self.MAXLOADFACTOR = 0.65  # resize if load factor meets or exceeds threshold
+
+    def create_hash(self, key):
+        ''' Very simple algorithm to create a hash and compress it to the size of
+            the associative array
+            Returns location to store key - value element
+        '''
+        hash = 0
+        for char in key:  # iterate through characters in key
+            hash += hash + ord(char)  # convert character to unicode value and add to hash
+        hash_index = hash % len(self.slots)  # create location by taking modulus of hash against array size
+        return hash_index
+
+    def resize(self):
+        ''' Determine if size of associative array needs to be changed based on number of elements being used
+        '''
+        loadfactor = self.count / self.size
+        if loadfactor > self.MAXLOADFACTOR:
+            self.growth()
+
+    def grow_table(self):
+        ''' Increase the size of the associative array
+        '''
+        New_Hash_Table = HashTable()  # create new array
+        New_Hash_Table.size = 2 * self.size  # set array size to twice current size
+        New_Hash_Table.slots = [None] * New_Hash_Table.size  # initialize locations to null
+
+        for index in range(self.size):  # iterate through existing array locations
+            if self.slots[index] != None:  # determine if element stored in location
+                iterator = self.slots[index].head
+
+                while iterator:
+                    key = iterator.data.key
+                    value = iterator.data.value
+                    New_Hash_Table.put(key, value)
+                    iterator = iterator.next
+
+        self.size = New_Hash_Table.size  # update with new size
+        self.slots = New_Hash_Table.slots  # update with new contents
+
+    def put(self, key, value):
+        ''' Add / Update element in associated array
+        '''
+        hash_index = self.create_hash(key)  # generate location index for element
+        value.append(hash_index)  # append target location to value (ONLY USED TO ILLUSTRATE TARGET SLOT)
+        item = HashItem(key, value)  # instantiate item to store in associative array
+
+        if self.slots[hash_index] is None:
+            self.slots[hash_index] = LinkedList()
+
+        old_size = self.slots[hash_index].count
+        self.slots[hash_index].insert_at_end(key, value)
+        if self.slots[hash_index].count > old_size:
+            self.count += 1
+            self.resize()
+
+    def get(self, key):
+        ''' Retrieve element from associative array
+        '''
+        hash_index = self.create_hash_index(key)  # generate location index for element
+        bucket = self.slots[hash_index]
+
+        if bucket is None:
+            raise KeyError('Key error:', key)
+
+        item = self.slots[hash_index].find_by_key(key)
+
+        if item:
+            return item.value
+        else:
+            raise KeyError('Key error:', key)
+
+    def remove(self, key):
+        ''' Remove element from associative array
+        '''
+        hash_index = self.create_hash(key)  # generate location index for element
+
+        bucket = self.slots[hash_index]
+
+        if bucket is None:
+            raise KeyError('Key error:', key)
+        self.slots[hash_index].remove(key)
+        self.count -= 1
+
+
+def test_hash_table():
+    ''' Test operation for associative array using linear probing
+    '''
+    myHashTable = HashTable()
+    print('Size:', myHashTable.count)
+    myHashTable.put('phansen@mercyhurst.edu', ['phansen@mercyhurst.edu,', 'Paul', 'Hansen', 1234567890])
+    print('Size:', myHashTable.count)
+    print('Value:', myHashTable.get('phansen@mercyhurst.edu'))
+    myHashTable.put('jdoe@mercyhurst.edu', ['jdoe@mercyhurst.edu,', 'Jane', 'Doe', 1234567890])
+    print('Size:', myHashTable.count)
+    print('Value:', myHashTable.get('jdoe@mercyhurst.edu'))
+    myHashTable.put('jsmith@mercyhurst.edu', ['jsmith@mercyhurst.edu,', 'John', 'Smith', 1234567890])
+    print('Size:', myHashTable.count)
+    print('Value:', myHashTable.get('jsmith@mercyhurst.edu'))
+
+    try:
+        myHashTable.put('htimsj@mercyhurst.edu', ['htimshj@mercyhurst.edu,', 'John', 'Smith', 1234567890])
+    except Exception as e:
+        print('Error Occurred:', e)
+
+    try:
+        print('Value:', myHashTable.get('jdoe@mercyhurst.edu'))
+    except Exception as e:
+        print('Error Occurred:', e)
+
+    myHashTable.remove('jsmith@mercyhurst.edu')
+    print('Removed: jsmith@mercyhurst.edu')
+    print('Array Contents:')
+    for element in myHashTable.slots:
+        if element is None or element is HashTable._AVAILABLE:
+            print(element)
+        else:
+            print('Value:', element.value)
+            print(element.print_list)
+    try:
+        myHashTable.put('efudd@mercyhurst.edu', ['efudd@mercyhurst.edu,', 'Elmer', 'Fudd', 1234567890])
+        myHashTable.put('bbunny@mercyhurst.edu', ['bbunny@mercyhurst.edu,', 'Bugs', 'Bunny', 1234567890])
+        myHashTable.put('wcoyote@mercyhurst.edu', ['wcoyote@mercyhurst.edu,', 'Wile', 'Coyote', 1234567890])
+        myHashTable.put('plepew@mercyhurst.edu', ['plepew@mercyhurst.edu,', 'Pepe', 'Lepew', 1234567890])
+        myHashTable.put('tbird@mercyhurst.edu', ['tbird@mercyhurst.edu,', 'Tweety', 'Bird', 1234567890])
+        myHashTable.put('rrunner@mercyhurst.edu', ['rrunner@mercyhurst.edu,', 'Road', 'Runner', 1234567890])
+        myHashTable.put('dduck@mercyhurst.edu', ['dwduck@mercyhurst.edu,', 'Donald', 'Duck', 1234567890])
+        myHashTable.put('fleghorn@mercyhurst.edu', ['fleghorn@mercyhurst.edu,', 'Foghorn', 'Leghorn', 1234567890])
+        myHashTable.put('ysam@mercyhurst.edu', ['ysam@mercyhurst.edu,', 'Yosemite', 'Sam', 1234567890])
+        myHashTable.put('mmartian@mercyhurst.edu', ['mmartian@mercyhurst.edu,', 'Marvin', 'Martian', 1234567890])
+        myHashTable.put('mmouse@mercyhurst.edu', ['mmouse@mercyhurst.edu,', 'Minnie', 'Mouse', 1234567890])
+    except Exception as e:
+        print('Error Occurred:', e)
+    print('Hash table expanded')
+    print('Size:', myHashTable.count)
+    myHashTable.remove('bbunny@mercyhurst.edu')
+    print('Removed: bbunny@mercyhurst.edu')
+    print('Array Contents:')
+    counter = 0
+    for element in myHashTable.slots:
+        if element is None or element is HashTable._AVAILABLE:
+            print('Index:', counter, 'Value:', element)
+        else:
+            print('Index:', counter, 'Value:', element.value)
+        counter += 1
+
+    print('Retrieved Value:', myHashTable.get('ysam@mercyhurst.edu'))
+
+
+if __name__ == '__main__':
+    test_hash_table()
