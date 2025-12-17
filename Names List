@@ -1,0 +1,38 @@
+names_list = []
+while True:
+    print("1. Append a name \n2. Remove a name\n3. Replace a name\n4. Display all names\n5. Display longest name\n6. Exit")
+    choice = input("Enter your choice:")
+    if choice == "1":#appending a name
+       name = input("Enter a name:")
+       names_list.append(name)
+    elif choice == "2":#removing a name
+        name = input("Enter name that needs to be removed:")
+        if name in names_list:
+            names_list.remove(name)
+            print("name has been successfully removed:", names_list)
+        else:
+            print(name, "Does not exist in the list")
+    elif choice == "3":#replacing a name
+        old_name = input("Enter old name that needs to be replace:")
+        if old_name in names_list:
+            new_name = input("Enter the new name:")
+            position = names_list.index(old_name)#index returns value, write function on right variable on left
+            names_list[position] = new_name
+            print("The list has been updated successfully", names_list)
+        else:
+            print(old_name, "does not exist in list")
+    elif choice == "4":#display all names
+        print(names_list)
+        for name in names_list:
+            print(name)
+    elif choice == "5":#display longest name
+        longest_name = ""
+        #longest_name = max(names_list, key=len)
+        length = 0
+        for name in names_list:
+            if length < len(name):
+                length = len(name)
+                longest_name = name
+        print("longest_name:", longest_name)
+    elif choice == "6":
+        break
