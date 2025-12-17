@@ -1,0 +1,11 @@
+value = str(input("Enter any character:"))
+character = value
+ASCII_value = ord(character) #ord() function converts character into ASCII value
+if ((ASCII_value >= 65) and (ASCII_value <= 90)):
+    print("UPPER CASE alphabet")
+elif ((ASCII_value >= 97) and (ASCII_value <= 122)):
+    print("LOWER CASE alphabet")
+elif ((ASCII_value >= 48) and (ASCII_value <= 57)):
+    print("Number")
+elif ((ASCII_value >= 33) and (ASCII_value <= 126)):
+    print("Special Character")
