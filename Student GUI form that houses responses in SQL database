@@ -1,0 +1,129 @@
+import re
+from tkinter import *
+import sqlite3
+from tkinter import ttk
+from tkinter import messagebox
+
+window = Tk()
+window.title("Student Form")
+window.geometry("700x300")
+window.resizable(False, False)
+
+frame = Frame(window)
+frame.pack()
+label_font = ("Times", 14, "bold")
+entry_font = ("Times", 14, "normal")
+
+# row 0 widgets
+label_fname = Label(frame, text="First Name:", font=label_font)
+label_fname.grid(row=0, column=0)
+entry_fname = Entry(frame, bd=2, font=entry_font)
+entry_fname.grid(row=0, column=1)
+
+label_lname = Label(frame, text="Last Name:", font=label_font)  # Creating a label widget
+label_lname.grid(row=0, column=2)
+entry_lname = Entry(frame, bd=2, font=entry_font)  # Creating textbox widget
+entry_lname.grid(row=0, column=3)
+
+# Row 1 widgets
+label_user_name = Label(frame, text="Username:", font=label_font)
+label_user_name.grid(row=1, column=0)
+entry_username = Entry(frame, bd=2, font=entry_font)
+entry_username.grid(row=1, column=1)
+
+# row 2 widgets
+label_phone_number = Label(frame, text="Phone:", font=label_font)
+label_phone_number.grid(row=2, column=0)
+entry_phone_number = Entry(frame, bd=2, font=entry_font)
+entry_phone_number.grid(row=2, column=1)
+
+# row 3 widgets
+label_password = Label(frame, text="Choose Password:", font=label_font)
+label_password.grid(row=3, column=0)
+entry_choose_password = Entry(frame, bd=2, font=entry_font, show='*')
+entry_choose_password.grid(row=3, column=1)
+
+# row 4 widgets
+label_password_confirm = Label(frame, text="Confirm Password:", font=label_font)
+label_password_confirm.grid(row=4, column=0)
+entry_password_confirm = Entry(frame, bd=2, font=entry_font, show='*')
+entry_password_confirm.grid(row=4, column=1)
+
+
+def submit_data():
+    print("User submitted the form")
+
+    first_name = entry_fname.get()
+    last_name = entry_lname.get()
+    u_name = entry_username.get()
+    p_number = entry_phone_number.get()
+    p_word = entry_choose_password.get()
+    p_word2 = entry_password_confirm.get()
+
+    if not p_number.isdigit() or len(p_number) != 10:
+        messagebox.showerror("INVALID PHONE NUMBER, must be digits", "Make sure the phone number is valid")
+        return
+
+    if p_word != p_word2:
+        messagebox.showerror("INVALID PASSWORD", "Make sure both passwords match!")
+        return
+
+    if p_word == p_word2:
+        messagebox.showinfo("Both passwords match", "Both of the passwords match")
+
+    messagebox.showinfo("Passwords match")
+    database()
+
+
+def database():
+    #connects to database
+    conn = sqlite3.connect('student.db')
+    cursor = conn.cursor()
+    cursor.execute("CREATE TABLE IF NOT EXISTS student_info(fname TEXT, lname TEXT, username TEXT, phone TEXT, password TEXT")
+
+    insert_command = f"INSERT INTO student_info (fname, lname, username, phone, password) VALUES ('{entry_fname.get()}', '{entry_lname.get()}', '{entry_username.get()}', '{entry_phone_number.get()}', '{entry_choose_password.get()}')"
+    cursor.execute(insert_command)
+    conn.commit()
+    conn.close()
+
+
+def show_records():
+    #prints the records in child window
+    print("Show form function")
+    conn = sqlite3.connect('student.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM student_info")
+    rows = cursor.fetchall()
+    conn.close()
+
+    records_window = Toplevel()
+    # Using treeview widget
+    treev = ttk.Treeview(records_window, columns=["fname", "lname", "username", "phone", "password"])
+    treev.heading("#1", text="First Name")
+    treev.heading("#2", text="Last Name")
+    treev.heading("#3", text="username")
+    treev.heading("#4", text="phone")
+    treev.heading("#5", text="password")
+
+    # column spacing:
+    treev.column("#0", width=150)
+    treev.column("#1", width=150)
+    treev.column("#2", width=150)
+    treev.column("#3", width=150)
+    treev.column("#4", width=150)
+
+    for row in rows:
+        treev.insert("", "end", values=row)
+
+    treev.pack()
+
+
+button_show = Button(frame, text="Show Records", font=label_font, command=show_records)
+button_show.grid(row=7, columnspan=4)
+
+
+button_submit = Button(frame, text="Submit", font=label_font, command=submit_data)
+button_submit.grid(row=6, columnspan=4)
+
+
+window.mainloop()
