@@ -5,7 +5,7 @@ I enjoy building practical applications and exploring problem-solving through Py
 
 ---
 
-## 🐍 Python Projects
+## Python Projects:
 
 ### 1. **Calculator GUI**
 - A desktop calculator built with Python and Tkinter.
@@ -29,15 +29,8 @@ I enjoy building practical applications and exploring problem-solving through Py
 
 ---
 
-## 📂 How to Explore
-- Each project has its own repository with a README explaining:
-  - Purpose & functionality  
-  - Setup instructions  
-  - Usage examples
 
----
-
-## 🎯 Goals & Interests
+##  Goals & Interests
 - Expand Python skills in **GUI, automation, and data handling**.  
 - Build projects that solve practical problems and showcase coding proficiency.  
 - Apply Python knowledge to cybersecurity and IT-focused projects.
